@@ -1,3 +1,4 @@
+; auto-threshold current image and log foreground pixel count
 (import '(ij WindowManager))
 (import '(ij IJ))
 (def imp (. WindowManager getCurrentImage))
