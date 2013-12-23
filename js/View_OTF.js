@@ -1,9 +1,12 @@
-// View_OTF javascript code to unscramble API OMX OTF files for viewing
-// Graeme Ball, Micron Oxford, November 2013
+// View_OTF.js: unscramble API OMX OTF files for viewing
+// Author: Graeme Ball, Micron Oxford, November 2013
+// License: GPL V3 license
 //
 // NB. bioformats treats 64bit complex as 32bit float
 //   => file header must be edited to double y size before import
 //   (halved back to the true value upon splitting aplitude / phase)
+//
+// also serves as an example of using a java array in js
 
 // get input image stack / parameters and create empty output stack
 var imp = IJ.getImage();
