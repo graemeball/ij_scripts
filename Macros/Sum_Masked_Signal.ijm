@@ -1,4 +1,11 @@
-/*** Step 1 - set up Marker and Signal stacks ***/
+// Sum_Masked_Signal.ijm: use a marker channel (ie. mask) to calculate
+// total signal intensity in a region of interest versus background.
+//
+// Author: graemeball@googlemail.com
+// License: GPL V3
+
+
+// Step 1 - set up Marker and Signal stacks
 markerChannel = getNumber("Which channel is the Marker (1..n)?", 1);
 run("Stack Splitter", "number=2");  // split into 2 substacks - NB. assumes Z then C
 if (markerChannel == 1){
@@ -12,10 +19,8 @@ if (markerChannel == 1){
 }
 
 
-/*** Step 2 - generate Mask, InvMask (for background), maskedSignal & Background ***/
-// select marker channel; generate & filter mask
+// Step 2 - generate Mask, InvMask (for background), maskedSignal & Background
 selectWindow("Marker");
-// normalize according to mean and otsu threshold
 run("Normalize Values", "normalize=Mean");
 setAutoThreshold("Otsu dark stack");
 run("Convert to Mask", "black");
@@ -29,7 +34,7 @@ run("Divide...", "value=255 stack");
 run("16-bit");
 num_slices = nSlices();
 setSlice(1);
-// find total pixels in 3D Background region (i.e. where InvMask=1);
+// find total pixels in 3D Background region (i.e. where InvMask=1)
 total_pixels_in_BG = 0;
 run("Set Measurements...", "area mean integrated stack limit redirect=None decimal=0");
 run("Clear Results");
@@ -59,15 +64,14 @@ for (i=0; i<num_slices; i++){
 }
 run("Clear Results");
 
-// multiply Signal and Mask images; also multiply Signal and InvMask images
+// use Mask and InvMask multiplication to separate signal and background
 imageCalculator("Multiply create 32-bit stack", "Signal","InvMask");
 rename("Background");
 imageCalculator("Multiply create 32-bit stack", "Signal","Mask");
 rename("maskedSignal");
 
 
-/*** Step 3 - measure masked Signal & Background intensity in each slice, and summarize ***/
-// select Background and loop through slices summing masked intensity
+// Step 3 - measure masked Signal & Background intensity in each slice, and summarize
 selectWindow("Background");
 num_slices = nSlices();
 setSlice(1);
@@ -80,7 +84,7 @@ for (i=0; i<num_slices; i++){
 }
 run("Clear Results");
 
-// loop through maskedSignal  slices summing masked intensity
+// sum masked intensity -- NB. results for maskedSignal not cleared
 selectWindow("maskedSignal");
 num_slices = nSlices();
 setSlice(1);
@@ -90,8 +94,7 @@ for (i=0; i<num_slices; i++){
     intensity_in_sliceROI = getResult("RawIntDen", i);
     total_intensity_in_ROI = total_intensity_in_ROI + intensity_in_sliceROI;
     run("Next Slice [>]");
-}
-// NB. results for maskedSignal not cleared
+} 
 
 // return results
 SignalAvPerPixel=total_intensity_in_ROI/total_pixels_in_ROI;
