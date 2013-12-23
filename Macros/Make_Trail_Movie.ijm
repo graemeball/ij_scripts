@@ -1,5 +1,7 @@
 // This macro generates a trail movie of all images
-//   in a stack and creates a new stack for the result.
+// in a stack and creates a new stack for the result.
+// Author: graemeball@googlemail.com
+// License: Public Domain (CC0)
 
 macro "Stack profile Plot" {
   activIm = getImageID();
@@ -17,11 +19,8 @@ macro "Stack profile Plot" {
   title = Dialog.getString();
   trailLen = Dialog.getNumber();
 
-  //trailLen = Dialog.getNumber("trail length:");
-
   print("Using "+nSlices+" slices");
   stopat = nSlices-trailLen+2;
-  //print(stopat);
 
   for (i=1; i<stopat; i++) {
     startval = i;
@@ -30,10 +29,8 @@ macro "Stack profile Plot" {
     run("Z Project...", "start="+startval+" stop="+stopval+" projection=[Average Intensity]");
     slicename = "trail"+i;
     rename(slicename);
-    //lastIm = getImageID();
     selectImage(activIm);
 
   }
-  //selectImage(lastIm);
   run("Images to Stack");
 }
