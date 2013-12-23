@@ -1,11 +1,12 @@
-/* ImageJ Macro for automatic segmentation and contour drawing      *
- *  - takes EM scan with manually drawn black boundary lines        *
- *  - identifies the black boundary, and fills to make ROI          *
- *  - progressively erodes the ROI producing concentric ROIs        *
- *  - measures area of each ROI, and displays all on original image *
- * TODO -                                                           *
- *  - calculate cencentric ring ROIs from the full circular ROIs    *
- ********************************************************************/
+// Draw_EM_Contours.ijm: automatic segmentation and contour drawing      
+// * takes EM scan with manually drawn black boundary lines        
+// * identifies the black boundary, and fills to make ROI          
+// * progressively erodes the ROI producing concentric ROIs        
+// * measures area of each ROI, and displays all on original image 
+// Author: Graeme Ball, Micron Oxford (2012)
+// License: Public Domain (CC0)
+// TODO: calculate cencentric ring ROIs from the full circular ROIs    
+
 imageID = getImageID();
 run("Duplicate...", "title=temp.tif");
 run("Colors...", "foreground=white background=black selection=magenta");
