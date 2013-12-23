@@ -1,3 +1,3 @@
 *.tif
 *.pyc
-./test_Larval_Tracker/
+test_LarvalTracker/
