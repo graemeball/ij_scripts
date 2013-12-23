@@ -1,7 +1,11 @@
-// ImageJ macro to arrange data for Grid/Collection Stitching plugin:
+// Export_for_Stitching.ijm: arrange data for Grid/Collection Stitching plugin:
 //   split tiled image hyperstack (tile=frame) into 1 multi-channel 
 //   stack per tile & save resulting stacks as .tif files in a folder.
-// Graeme Ball, Micron Oxford 2013
+//
+// Author: Graeme Ball, Micron Oxford 2013
+// License: Public Domain (CC0)
+//
+// FIXME: this Macro likely still has bugs
 
 
 // assuming 1 empty folder exists for stitching input (& 1 for output)
@@ -24,7 +28,7 @@ for (i = 0; i < nTifs; i++) {
 setBatchMode(false);
 
 
-// ** function definitions **
+// Function Definitions
 
 // convert integer to string padded with zeros, total length nChar
 function sliceString(num, nChar) {
