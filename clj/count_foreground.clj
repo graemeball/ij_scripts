@@ -1,4 +1,7 @@
-; auto-threshold current image and log foreground pixel count
+; Auto-threshold current image and log foreground pixel count
+; Graeme Ball (2013)
+; Public Domain (CC0)
+;
 (import '(ij WindowManager))
 (import '(ij IJ))
 (def imp (. WindowManager getCurrentImage))
