@@ -1,7 +1,6 @@
-/*
- * Macro to produce a "particle image stack" from a field of particles
- * Graeme Ball, 2013 (for Kok-Lung Chan)
- */
+// Particle_Stack.ijm: produce a "particle image stack" from a field of particles
+// Author: Graeme Ball, Micron Oxford (2013) for Kok-Lung Chan
+// License: Public Domain (CC0)
 
 box_radius = 8;
 title = getTitle();
