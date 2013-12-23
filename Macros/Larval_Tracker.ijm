@@ -1,4 +1,4 @@
-// gbLarvalTracker_.ijm: build stack and display latest frame as files appear 
+// Larval_Tracker.ijm: build stack and display latest frame as files appear 
 //   in the directory specified.
 //
 // Author: graemeball@googlemail.com (Micron Oxford)
@@ -45,9 +45,9 @@ macro "Larval Tracker Action Tool - C000D00C000D10C000D20C000D30C000D40C000D50C0
 	
 	
 	
-	///// Function definitions /////////////////////////////////////////////
+	// Function definitions
 	
-	/// Perform sequence (& tracking?) update, adding to existing sequence
+	// Perform sequence (& tracking?) update, adding to existing sequence
 	function updateSequence(directory, list) {
 	        open(directory + list[i]);
 	        if (nImages==1){
@@ -66,7 +66,7 @@ macro "Larval Tracker Action Tool - C000D00C000D10C000D20C000D30C000D40C000D50C0
 	        setSlice(nSlices);
 	}
 	
-	/// Pre-process the image to reduce its size and background
+	// Pre-process the image to reduce its size and background
 	function preprocess(){
 		// TODO: set cropping box from 1st image
 		makeRectangle(152, 0, 615, 611);
@@ -76,7 +76,7 @@ macro "Larval Tracker Action Tool - C000D00C000D10C000D20C000D30C000D40C000D50C0
 		run("Enhance Contrast...", "saturated=0.4");
 	}
 	
-	/// Return a date & time string (day_month_year-time), e.g. 9_11_2001-08-46
+	// Return a date & time string (day_month_year-time), e.g. 9_11_2001-08-46
 	function timeStamp() {
 	     MonthNames = newArray("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
 	     DayNames = newArray("Sun", "Mon","Tue","Wed","Thu","Fri","Sat");
