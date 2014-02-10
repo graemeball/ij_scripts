@@ -11,8 +11,8 @@
 // - for the label, subtracts background in non-marker ROI after dilate 30
 // - destructive: splits the input stack and closes these windows when done 
 
-cleanup = false;  // close all image windows created when done
-setBatchMode(false);  // avoid window updates for speed
+setBatchMode(true);     // avoid window updates for speed
+cleanup = true;         // close all image windows created when done
 
 hyperstackName = getTitle();
 getDimensions(width, height, channels, slices, frames); // used globally!
@@ -24,10 +24,15 @@ Dialog.create("Cell Label Distribution");
 Dialog.addNumber("Nucleus channel no", 1);
 Dialog.addNumber("Membrane channel no", 2);
 Dialog.addNumber("Label channel no", 3);
+Dialog.addNumber("Label background estimate", 0);
 Dialog.show();
 cNucleus = Dialog.getNumber();
 cMembrane = Dialog.getNumber();
 cLabel = Dialog.getNumber();
+background = Dialog.getNumber();
+
+outputRow = nResults;
+setResult("filename", outputRow, hyperstackName);
 
 singleChannelStacks = splitChannels(hyperstackName);
 for (c = 1; c <= channels; c++) {
@@ -39,39 +44,52 @@ for (c = 1; c <= channels; c++) {
 
 run("Options...", "iterations=1 count=1 black edm=Overwrite");
 selectWindow(singleChannelStacks[cNucleus - 1]);
-run("Convert to Mask", "method=Otsu background=Dark black");
+setAutoThreshold();
+run("Convert to Mask", "black");
 rename("nucleusMask");
+
 selectWindow(singleChannelStacks[cMembrane - 1]);
-run("Convert to Mask", "method=Otsu background=Dark black");
+setAutoThreshold("Otsu dark stack");
+run("Convert to Mask", "black");
 rename("membraneMask");
+
 stackCopy(singleChannelStacks[cLabel - 1]);
-run("Convert to Mask", "method=Otsu background=Dark black");
+setAutoThreshold("Otsu dark stack");
+getThreshold(labelLower, labelUpper);
+setThreshold(background, labelUpper);
+run("Convert to Mask", "black");
 rename("labelMask");
+
 imageCalculator("Subtract create stack", "labelMask", "nucleusMask");
 cytoplasmAndMembrane = getTitle();
 imageCalculator("Subtract create stack", cytoplasmAndMembrane, "membraneMask");
 rename("cytoplasmMask");
+
 selectWindow(cytoplasmAndMembrane);
 close();
-background = estimateBackground(singleChannelStacks[cLabel - 1], 30);
-print("average background level = " +  background);
+
+////background = estimateBackground(singleChannelStacks[cLabel - 1], 30);
+//print("average background level = " +  background);
 labelStack = singleChannelStacks[cLabel - 1];
 rawNuclearSignal = totalMaskedIntensity(labelStack, "nucleusMask");
 nNuclearPixels = totalMaskedIntensity("nucleusMask", "nucleusMask") / 255;
 nuclearSignal = rawNuclearSignal - background * nNuclearPixels;
-print("raw nuclear signal = " + rawNuclearSignal);
-print("background-corrected nuclear signal = " + nuclearSignal);
+//print("raw nuclear signal = " + rawNuclearSignal);
+//print("background-corrected nuclear signal = " + nuclearSignal);
+setResult("Nuclear signal", outputRow, nuclearSignal);
 rawMembraneSignal = totalMaskedIntensity(labelStack, "membraneMask");
 nMembranePixels = totalMaskedIntensity("membraneMask", "membraneMask") / 255;
 membraneSignal = rawMembraneSignal - background * nMembranePixels;
-print("total membrane signal = " + rawMembraneSignal);
-print("background-corrected membrane signal = " + membraneSignal);
+setResult("Membrane signal", outputRow, membraneSignal);
+//print("total membrane signal = " + rawMembraneSignal);
+//print("background-corrected membrane signal = " + membraneSignal);
 rawCytoplasmSignal = totalMaskedIntensity(labelStack, "cytoplasmMask");
 nCytoplasmPixels = totalMaskedIntensity("cytoplasmMask", "cytoplasmMask") / 255;
 cytoplasmSignal = rawCytoplasmSignal - background * nCytoplasmPixels;
-print("total cytoplasm signal = " + rawCytoplasmSignal);
-print("background-corrected cytoplasm signal = " + cytoplasmSignal);
-
+setResult("Cytoplasm signal", outputRow, cytoplasmSignal);
+//print("total cytoplasm signal = " + rawCytoplasmSignal);
+//print("background-corrected cytoplasm signal = " + cytoplasmSignal);
+//
 if (cleanup) {
 	selectWindow("nucleusMask");
 	close();
