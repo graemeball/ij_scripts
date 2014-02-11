@@ -1,0 +1,17 @@
+// estimate average background intensity in a stack, excluding
+// foreground by auto-thresholding (Otsu) & dilation by nDilate
+function estimateBackground(stackTitle, nDilate) {
+    stackCopy(stackTitle);
+    run("Convert to Mask", "method=Otsu background=Dark black");
+    run("Options...", "iterations=" + nDilate + " count=1 black edm=Overwrite");
+    run("Dilate", "stack");
+    run("Options...", "iterations=1 count=1 black edm=Overwrite");
+    run("Invert", "stack");
+    rename("backgroundMask");
+    maskTotal = totalMaskedIntensity("backgroundMask", "backgroundMask");
+    maskedBackgroundTotal = totalMaskedIntensity(stackTitle, "backgroundMask");
+    backgroundMean = maskedBackgroundTotal / (maskTotal / 255);
+    selectWindow("backgroundMask");
+    close();
+    return backgroundMean;
+}
