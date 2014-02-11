@@ -1,3 +1,5 @@
+// FIXME, some of these functions currently require stack size globals
+
 // estimate average background intensity in a stack, excluding
 // foreground by auto-thresholding (Otsu) & dilation by nDilate
 function estimateBackground(stackTitle, nDilate) {
@@ -14,4 +16,49 @@ function estimateBackground(stackTitle, nDilate) {
     selectWindow("backgroundMask");
     close();
     return backgroundMean;
+}
+
+// split hyperstack into 1 stack per channel
+// return array of new image titles
+function splitChannels(hyperstackName) {
+    selectWindow(hyperstackName);
+    //getDimensions(width, height, channels, slices, frames);
+    run("Split Channels");
+    titles = newArray(channels);
+    for (c = 1; c <= channels; c++) {
+         titles[c - 1] = "C" + c + "-" + hyperstackName;
+    }
+    return titles;
+}
+
+// duplicate a stack (assumes XYZ only)
+function stackCopy(inStackName) {
+    selectWindow(inStackName);
+    run("Duplicate...", "title=" + inStackName + " duplicate range=1-" + slices);
+}
+
+// for a sample and mask stack, return total sample intensity in masked region
+function totalMaskedIntensity(sample, mask) {
+    maskedSampleTotal = 0.0;
+    for (s = 1; s <= slices; s++) {
+        selectWindow(mask);
+        setSlice(s);
+        run("Duplicate...", "title=maskSlice");
+        run("Select All");
+        selectWindow(sample);
+        setSlice(s);
+        run("Duplicate...", "title=sampleSlice");
+        imageCalculator("Multiply create 32-bit", "sampleSlice", "maskSlice");
+        selectWindow("Result of sampleSlice");
+        getRawStatistics(nPixels, mean, min, max, std, histogram);
+        sampleTotal = nPixels * mean;
+        maskedSampleTotal += sampleTotal / 255;
+        selectWindow("maskSlice");
+        close();
+        selectWindow("sampleSlice");
+        close();
+        selectWindow("Result of sampleSlice");
+        close();
+    }
+    return maskedSampleTotal;
 }
