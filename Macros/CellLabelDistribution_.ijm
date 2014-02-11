@@ -2,37 +2,47 @@
 // - takes a multi-channel image (hyperstack)
 // - specify channels for nucleus, membrane, and label of interest
 //
+// Copyright Graeme Ball (2013), graemeball@gmail.com
+// Creative Commons Attribution License (CC BY 3.0)
+//
 // Details:
 // - calculates proportion of total intensity in:-
 //   - nucleus
 //   - membrane
 //   - cytoplasm (i.e. neither nucleus nor membrane)
-// - uses autothresholding (Otsu)
-// - for the label, subtracts background in non-marker ROI after dilate 30
-// - destructive: splits the input stack and closes these windows when done 
+// - uses autothresholding (Otsu) to define nucleus & membrane regions
+// - assumes all above-background signal is nucleus, membrane or cytoplasm
+// - reports signal in each region after background subtraction
+// - destructive: converts original image into hyperstack of masks 
 
-setBatchMode(true);     // avoid window updates for speed
-cleanup = true;         // close all image windows created when done
+batch = false;          // for batch true, report to Result table only
+cNucleus = 1;          // channel marking nucleus
+cMembrane = 2;         // channel marking membrane
+cLabel = 3;            // label / signal of interest to be quantified
+cMarker = 4;           // a second marker channel, used to split results
+background = 90;       // background in label channel (non-specific stain, autofluoresc.)
+
+// --- do not edit below! ---
 
 hyperstackName = getTitle();
 getDimensions(width, height, channels, slices, frames); // used globally!
-if (channels < 3) {
-    exit("Cell Label Distribution Macro requires 3+ channels");
+
+if (batch) {
+    setBatchMode(true);     // avoid window updates for speed
+    outputRow = nResults;
+    setResult("filename", outputRow, hyperstackName);
+} else {
+    Dialog.create("Cell Label Distribution");
+    Dialog.addNumber("Nucleus channel no", 1);
+    Dialog.addNumber("Membrane channel no", 2);
+    Dialog.addNumber("Label channel no", 3);
+    Dialog.addNumber("Label background estimate", 0);
+    Dialog.show();
+    cNucleus = Dialog.getNumber();
+    cMembrane = Dialog.getNumber();
+    cLabel = Dialog.getNumber();
+    background = Dialog.getNumber();
 }
-
-Dialog.create("Cell Label Distribution");
-Dialog.addNumber("Nucleus channel no", 1);
-Dialog.addNumber("Membrane channel no", 2);
-Dialog.addNumber("Label channel no", 3);
-Dialog.addNumber("Label background estimate", 0);
-Dialog.show();
-cNucleus = Dialog.getNumber();
-cMembrane = Dialog.getNumber();
-cLabel = Dialog.getNumber();
-background = Dialog.getNumber();
-
-outputRow = nResults;
-setResult("filename", outputRow, hyperstackName);
 
 singleChannelStacks = splitChannels(hyperstackName);
 for (c = 1; c <= channels; c++) {
@@ -68,39 +78,39 @@ rename("cytoplasmMask");
 selectWindow(cytoplasmAndMembrane);
 close();
 
-////background = estimateBackground(singleChannelStacks[cLabel - 1], 30);
-//print("average background level = " +  background);
 labelStack = singleChannelStacks[cLabel - 1];
 rawNuclearSignal = totalMaskedIntensity(labelStack, "nucleusMask");
 nNuclearPixels = totalMaskedIntensity("nucleusMask", "nucleusMask") / 255;
 nuclearSignal = rawNuclearSignal - background * nNuclearPixels;
-//print("raw nuclear signal = " + rawNuclearSignal);
-//print("background-corrected nuclear signal = " + nuclearSignal);
-setResult("Nuclear signal", outputRow, nuclearSignal);
+
 rawMembraneSignal = totalMaskedIntensity(labelStack, "membraneMask");
 nMembranePixels = totalMaskedIntensity("membraneMask", "membraneMask") / 255;
 membraneSignal = rawMembraneSignal - background * nMembranePixels;
-setResult("Membrane signal", outputRow, membraneSignal);
-//print("total membrane signal = " + rawMembraneSignal);
-//print("background-corrected membrane signal = " + membraneSignal);
+
 rawCytoplasmSignal = totalMaskedIntensity(labelStack, "cytoplasmMask");
 nCytoplasmPixels = totalMaskedIntensity("cytoplasmMask", "cytoplasmMask") / 255;
 cytoplasmSignal = rawCytoplasmSignal - background * nCytoplasmPixels;
-setResult("Cytoplasm signal", outputRow, cytoplasmSignal);
-//print("total cytoplasm signal = " + rawCytoplasmSignal);
-//print("background-corrected cytoplasm signal = " + cytoplasmSignal);
-//
-if (cleanup) {
-	selectWindow("nucleusMask");
-	close();
-	selectWindow("membraneMask");
-	close();
-	selectWindow("labelMask");
-	close();
-	selectWindow("cytoplasmMask");
-	close();
-	selectWindow(labelStack);
-	close();
+
+selectWindow(labelStack);
+close();
+
+// create a hyperstack of mask images for examination
+run("Merge Channels...", "c1=nucleusMask c2=membraneMask c3=cytoplasmMask c4=labelMask");
+outputStack = "C1nucleus_C2membrane_C3cytoplasm_C4label";
+rename(outputStack);
+Stack.setDisplayMode("grayscale");
+
+if (batch) {
+    setResult("Nuclear signal", outputRow, nuclearSignal);
+    setResult("Membrane signal", outputRow, membraneSignal);
+    setResult("Cytoplasm signal", outputRow, cytoplasmSignal);
+} else {
+    print("raw nuclear signal = " + rawNuclearSignal);
+    print("background-corrected nuclear signal = " + nuclearSignal);    
+    print("total membrane signal = " + rawMembraneSignal);
+    print("background-corrected membrane signal = " + membraneSignal);
+    print("total cytoplasm signal = " + rawCytoplasmSignal);
+    print("background-corrected cytoplasm signal = " + cytoplasmSignal);
 }
 
 // --- helper function definitions --
@@ -122,24 +132,6 @@ function splitChannels(hyperstackName) {
 function stackCopy(inStackName) {
     selectWindow(inStackName);
     run("Duplicate...", "title=" + inStackName + " duplicate range=1-" + slices);
-}
-
-// estimate average background intensity in a stack, excluding
-// foreground by auto-thresholding (Otsu) & dilation by nDilate
-function estimateBackground(stackTitle, nDilate) {
-    stackCopy(stackTitle);
-    run("Convert to Mask", "method=Otsu background=Dark black");
-    run("Options...", "iterations=" + nDilate + " count=1 black edm=Overwrite");
-    run("Dilate", "stack");
-    run("Options...", "iterations=1 count=1 black edm=Overwrite");
-    run("Invert", "stack");
-    rename("backgroundMask");
-    maskTotal = totalMaskedIntensity("backgroundMask", "backgroundMask");
-    maskedBackgroundTotal = totalMaskedIntensity(stackTitle, "backgroundMask");
-    backgroundMean = maskedBackgroundTotal / (maskTotal / 255);
-    selectWindow("backgroundMask");
-    close();
-    return backgroundMean;
 }
 
 // for a sample and mask stack, return total sample intensity in masked region
