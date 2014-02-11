@@ -19,8 +19,7 @@ batch = false;          // for batch true, report to Result table only
 cNucleus = 1;          // channel marking nucleus
 cMembrane = 2;         // channel marking membrane
 cLabel = 3;            // label / signal of interest to be quantified
-cMarker = 4;           // a second marker channel, used to split results
-background = 90;       // background in label channel (non-specific stain, autofluoresc.)
+background = 15;       // background in label channel (non-specific stain, autofluoresc.)
 
 // --- do not edit below! ---
 
@@ -33,10 +32,10 @@ if (batch) {
     setResult("filename", outputRow, hyperstackName);
 } else {
     Dialog.create("Cell Label Distribution");
-    Dialog.addNumber("Nucleus channel no", 1);
-    Dialog.addNumber("Membrane channel no", 2);
-    Dialog.addNumber("Label channel no", 3);
-    Dialog.addNumber("Label background estimate", 0);
+    Dialog.addNumber("Nucleus channel no", cNucleus);
+    Dialog.addNumber("Membrane channel no", cMembrane);
+    Dialog.addNumber("Label channel no", cLabel);
+    Dialog.addNumber("Label background estimate", background);
     Dialog.show();
     cNucleus = Dialog.getNumber();
     cMembrane = Dialog.getNumber();
