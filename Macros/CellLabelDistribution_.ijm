@@ -13,9 +13,9 @@
 // - uses autothresholding (Otsu) to define nucleus & membrane regions
 // - assumes all above-background signal is nucleus, membrane or cytoplasm
 // - reports signal in each region after background subtraction
-// - destructive: converts original image into hyperstack of masks 
+// - converts original image into hyperstack of mask images used for inspection
 
-batch = false;          // for batch true, report to Result table only
+batch = true;          // for batch true, report to Result table only
 cNucleus = 1;          // channel marking nucleus
 cMembrane = 2;         // channel marking membrane
 cLabel = 3;            // label / signal of interest to be quantified
@@ -53,7 +53,7 @@ for (c = 1; c <= channels; c++) {
 
 run("Options...", "iterations=1 count=1 black edm=Overwrite");
 selectWindow(singleChannelStacks[cNucleus - 1]);
-setAutoThreshold();
+setAutoThreshold("Otsu dark stack");
 run("Convert to Mask", "black");
 rename("nucleusMask");
 
@@ -77,6 +77,8 @@ rename("cytoplasmMask");
 selectWindow(cytoplasmAndMembrane);
 close();
 
+//waitForUser;
+
 labelStack = singleChannelStacks[cLabel - 1];
 rawNuclearSignal = totalMaskedIntensity(labelStack, "nucleusMask");
 nNuclearPixels = totalMaskedIntensity("nucleusMask", "nucleusMask") / 255;
@@ -94,21 +96,27 @@ selectWindow(labelStack);
 close();
 
 // create a hyperstack of mask images for examination
-run("Merge Channels...", "c1=nucleusMask c2=membraneMask c3=cytoplasmMask c4=labelMask");
+run("Merge Channels...", "c1=nucleusMask c2=membraneMask c3=cytoplasmMask c4=labelMask create");
 outputStack = "C1nucleus_C2membrane_C3cytoplasm_C4label";
 rename(outputStack);
 Stack.setDisplayMode("grayscale");
 
 if (batch) {
     setResult("Nuclear signal", outputRow, nuclearSignal);
+    setResult("Nuclear vol (pix)", outputRow, nNuclearPixels);
     setResult("Membrane signal", outputRow, membraneSignal);
+    setResult("Membrane vol (pix)", outputRow, nMembranePixels);
     setResult("Cytoplasm signal", outputRow, cytoplasmSignal);
+    setResult("Cytoplasm vol (pix)", outputRow, nCytoplasmPixels);
 } else {
     print("raw nuclear signal = " + rawNuclearSignal);
+    print("nuclear volume (pix) = " + nNuclearPixels);
     print("background-corrected nuclear signal = " + nuclearSignal);    
     print("total membrane signal = " + rawMembraneSignal);
+    print("nuclear membrane (pix) = " + nMembranePixels);
     print("background-corrected membrane signal = " + membraneSignal);
     print("total cytoplasm signal = " + rawCytoplasmSignal);
+    print("cytoplasm volume (pix) = " + nCytoplasmPixels);
     print("background-corrected cytoplasm signal = " + cytoplasmSignal);
 }
 
