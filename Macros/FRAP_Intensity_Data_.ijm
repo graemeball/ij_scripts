@@ -11,7 +11,7 @@
 // RESULTS:-
 // - in the same folder as the input image, saves:
 //   - .csv file with average intensity results
-//   - .roi file with the 3 ROIs
+//   - .zip file with the 3 ROIs
 //
 // Copyright Graeme Ball (2014), graemeball@gmail.com
 // Creative Commons Attribution License (CC BY 3.0)
@@ -40,7 +40,7 @@ macro "FRAP Intensity Data [f]" {
             "1) FRAP region\n2) whole cell\n3) background");
     }
 
-    logText = findLog(imageName, dir, 8);
+    logText = findLog(imageName, dir, nExtChars);
     times = extractTimes(logText, 110);
 
     ROInames = newArray("Ifrap", "Icell", "Ibackground");
@@ -50,6 +50,7 @@ macro "FRAP Intensity Data [f]" {
         if (frame <= nTimes) {
             for (nROI = 0; nROI < nROIs; nROI++) {
                 roiManager("select", nROI);
+                Roi.setName(ROInames[nROI]);
                 Stack.setFrame(frame);
                 getStatistics(area, mean, min, max, std, histogram);
                 time = times[frame - 1];
@@ -58,7 +59,7 @@ macro "FRAP Intensity Data [f]" {
             }
         }
     }
-
+    updateResults();
     resultsFile = dir + filenameWithoutExtension(imageName) + ".csv";
     saveAs("Results", resultsFile);
     print("---\nsaved " + resultsFile);
@@ -82,7 +83,7 @@ function findLog(filename, dir, N) {
     // matching all but last N chars of filename
     filebase = substring(filename, 0, lengthOf(filename) - N);
     logfile = dir + filebase + ".dv.log";
-    return File.openAsString(logfile);;
+    return File.openAsString(logfile);
 }
 
 function extractTimes(logText, nTimes) {
