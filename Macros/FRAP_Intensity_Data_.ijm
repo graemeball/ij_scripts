@@ -41,7 +41,7 @@ macro "FRAP Intensity Data [f]" {
     }
 
     logText = findLog(imageName, dir, nExtChars);
-    times = extractTimes(logText, 110);
+    times = extractTimes(logText, nTimes);
 
     ROInames = newArray("Ifrap", "Icell", "Ibackground");
 
@@ -50,7 +50,6 @@ macro "FRAP Intensity Data [f]" {
         if (frame <= nTimes) {
             for (nROI = 0; nROI < nROIs; nROI++) {
                 roiManager("select", nROI);
-                Roi.setName(ROInames[nROI]);
                 Stack.setFrame(frame);
                 getStatistics(area, mean, min, max, std, histogram);
                 time = times[frame - 1];
@@ -63,6 +62,10 @@ macro "FRAP Intensity Data [f]" {
     resultsFile = dir + filenameWithoutExtension(imageName) + ".csv";
     saveAs("Results", resultsFile);
     print("---\nsaved " + resultsFile);
+    for (nROI = 0; nROI < nROIs; nROI++) {
+        roiManager("select", nROI);
+        roiManager("rename", ROInames[nROI]);
+    }
     roiSetFile = dir + filenameWithoutExtension(imageName) + "_RoiSet.zip";
     roiManager("Deselect");
     roiManager("Save", roiSetFile);
