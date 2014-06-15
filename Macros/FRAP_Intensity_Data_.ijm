@@ -1,4 +1,5 @@
 // Measure average intensities in 3 ROIs for FRAP analysis
+// -- tracks first ROI for FRAP spot
 //
 // USAGE:-
 // - takes a multi-frame image with 3 pre-defined ROIs:
@@ -21,15 +22,19 @@ macro "FRAP Intensity Data [f]" {
     // --- adjust macro parameters below
 
     // number of time points to analyze
-    nTimes = 110;
+    nTimes = 200;
 
     // number of characters to chop off data filename before adding .dv.log
     nExtChars = 8;
+
+    // dilate peak ROI by searchRadius times to make a window to track it
+    searchRadius = 2;
 
 
     // --- real start of macro: should not need to edit below!
 
     imageName = getTitle();
+    imageID = getImageID();
     dir = getDirectory("image");
     getDimensions(width, height, channels, slices, frames);
 
@@ -44,13 +49,30 @@ macro "FRAP Intensity Data [f]" {
     times = extractTimes(logText, nTimes);
 
     ROInames = newArray("Ifrap", "Icell", "Ibackground");
+    for (nROI = 0; nROI < nROIs; nROI++) {
+        roiManager("select", nROI);
+        roiManager("rename", ROInames[nROI]);
+    }
 
     run("Clear Results");
+    setBatchMode(true);
     for (frame = 1; frame <= frames; frame++) {
         if (frame <= nTimes) {
             for (nROI = 0; nROI < nROIs; nROI++) {
                 roiManager("select", nROI);
                 Stack.setFrame(frame);
+                // logic for adding a new Ifrap ROI for each frame
+                if (nROI == 0) {
+                    if (frame == 1) {
+                        roiManager("Add");
+                        roiManager("select", roiManager("count") - 1);
+                        roiManager("Rename", "Ifrap[frame=" + frame + "]");
+                        // after 1st frame, final ROI is frap ROI for previous frame
+                    } else {
+                        roiManager("select", roiManager("count") - 1);
+                        addRoiForNearestPeak(imageID, frame, searchRadius);
+                    }
+                }
                 getStatistics(area, mean, min, max, std, histogram);
                 time = times[frame - 1];
                 setResult("Time", frame - 1, time);
@@ -58,14 +80,12 @@ macro "FRAP Intensity Data [f]" {
             }
         }
     }
+    setBatchMode(false);
     updateResults();
     resultsFile = dir + filenameWithoutExtension(imageName) + ".csv";
     saveAs("Results", resultsFile);
     print("---\nsaved " + resultsFile);
-    for (nROI = 0; nROI < nROIs; nROI++) {
-        roiManager("select", nROI);
-        roiManager("rename", ROInames[nROI]);
-    }
+
     roiSetFile = dir + filenameWithoutExtension(imageName) + "_RoiSet.zip";
     roiManager("Deselect");
     roiManager("Save", roiSetFile);
@@ -107,4 +127,45 @@ function extractTimes(logText, nTimes) {
         }
     }
     return times;
+}
+
+function addRoiForNearestPeak(imageID, frame, searchRadius) {
+    // add new ROI for nearest peak within current ROI dilated by searchRadius
+    currentRoi = roiManager("index");
+    Roi.getBounds(x, y, w, h);
+    makeRectangle(
+        x - searchRadius * w,
+        y - searchRadius * h,
+        (2 * searchRadius + 1) * w,
+        (2 * searchRadius + 1) * h);
+    run("Duplicate...", "title=searchWindow");
+    run("Select All");
+    getStatistics(area, mean, min, max, std, histogram);
+    run("Find Maxima...", "noise=" + std + " output=[Point Selection] exclude");
+    Roi.getCoordinates(xpoints, ypoints);
+    nPoints = xpoints.length;
+    xPrevious = ((2 * searchRadius + 1) * w / 2);
+    yPrevious = ((2 * searchRadius + 1) * h / 2);
+    pNearest = 0;
+    if (nPoints > 1) {
+        // find the nearest to the previous point
+        minSqDist = pow(xPrevious, 2) + pow(yPrevious, 2);  // edge value to start
+        for (p = 0; p < nPoints; p++) {
+            sqDist = pow((xpoints[p] - xPrevious), 2) +
+                     pow((ypoints[p] - yPrevious), 2);
+            if (sqDist < minSqDist) {
+                minSqDist = sqDist;
+                pNearest = p;
+            }
+        }
+    }
+    xOffset = xpoints[pNearest] - xPrevious;
+    yOffset = ypoints[pNearest] - yPrevious;
+    close();
+    selectImage(imageID);
+    Stack.setFrame(frame);
+    makeOval(x + xOffset, y + yOffset, w, h);
+    roiManager("Add");
+    roiManager("select", currentRoi + 1);
+    roiManager("Rename", "Ifrap[frame=" + frame + "]");
 }
