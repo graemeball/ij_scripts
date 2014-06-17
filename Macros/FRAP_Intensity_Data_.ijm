@@ -1,5 +1,6 @@
 // Measure average intensities in 3 ROIs for FRAP analysis
-// -- tracks first ROI for FRAP spot
+// - tracks first ROI for FRAP spot
+// - delay based on preBleachDelay to allow partial recovery before tracking
 //
 // USAGE:-
 // - takes a multi-frame image with 3 pre-defined ROIs:
@@ -28,7 +29,10 @@ macro "FRAP Intensity Data [f]" {
     nExtChars = 8;
 
     // dilate peak ROI by searchRadius times to make a window to track it
-    searchRadius = 2;
+    searchRadius = 1;
+
+    // delay tracking until partial recovery
+    preBleachDelay = 5;
 
 
     // --- real start of macro: should not need to edit below!
@@ -63,7 +67,9 @@ macro "FRAP Intensity Data [f]" {
                 Stack.setFrame(frame);
                 // logic for adding a new Ifrap ROI for each frame
                 if (nROI == 0) {
-                    if (frame == 1) {
+                    if (frame < preBleachDelay * 3) {
+                        Roi.getBounds(x, y, w, h);
+                        makeOval(x, y, w, h);
                         roiManager("Add");
                         roiManager("select", roiManager("count") - 1);
                         roiManager("Rename", "Ifrap[frame=" + frame + "]");
