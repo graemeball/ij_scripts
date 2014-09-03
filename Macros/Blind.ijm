@@ -5,7 +5,7 @@
 // License: Public Domain (CC0)
 
 // get input & output folder paths
-inPath = getDirectory("Choose a folder of input files");
+inPath = getDirectory("Choose a folder of input files to copy");
 if (lengthOf(inPath) < 1){
 	exit("Macro cancelled.");
 }
@@ -61,7 +61,11 @@ File.close(fkey);
 function fileExt(filename) {
 	// return the file extension of an input filename string
 	dotIndex = lastIndexOf(filename, ".");
-	return substring(filename, dotIndex);
+    if (dotIndex >= 0) {
+	    return substring(filename, dotIndex);
+    } else {
+        return "";
+    }
 }
 
 function namePresent(name, nameArray, imax) {
