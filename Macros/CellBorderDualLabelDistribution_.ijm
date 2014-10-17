@@ -19,11 +19,14 @@
 // License: Public Domain (CC0)
 //
 
+
 // -- parameter definitions (globals) --
 // FIXME, ensure parameters used / no magic numbers!
-CELL_CIRCUMF = 100     // normalize to this circumference, in pixels
-PROFILE_THICKNESS = 7  // consider this line thickness, in pixels
-DOMAIN_THRESH = 0.5    // fraction of max intensity for domain thresholding
+CELL_CIRCUMF = 100           // normalize to this circumference, in pixels
+PROFILE_THICKNESS = 7        // consider this line thickness, in pixels
+DOMAIN_THRESH_STDDEV = 3.0;  // standard deviations above background
+DOMAIN_THRESH_SIMPLE = 0.5   // fraction of max intensity for domain thresholding
+
 
 // -- macro main body --
 inputImageID = getImageID();
@@ -33,8 +36,8 @@ run("Line Width...", "line=" + PROFILE_THICKNESS);
 convertOvalToSegmentedLineRoi();
 Stack.setPosition(1, centralSlice, 1);
 run("Straighten...", "title=" + "Profile_C1" + " line=" + PROFILE_THICKNESS);
-run("Scale...", "x=- y=- width=100 height=7 interpolation=Bilinear average create title=Profile_C1_Norm");
-run("Gaussian Blur...", "sigma=1");
+run("Scale...", "x=- y=- width=100 height=" + PROFILE_THICKNESS + " interpolation=Bilinear average create title=Profile_C1_Norm");
+//run("Gaussian Blur...", "sigma=1");
 profileC1N = getTitle();
 run("Select All");
 run("Plot Profile");
@@ -42,8 +45,8 @@ Plot.getValues(plotX, avIntensC1);
 selectImage(inputImageID);
 Stack.setPosition(2, centralSlice, 1);
 run("Straighten...", "title=" + "Profile_C2" + " line=" + PROFILE_THICKNESS);
-run("Scale...", "x=- y=- width=100 height=7 interpolation=Bilinear average create title=Profile_C2_Norm");
-run("Gaussian Blur...", "sigma=1");
+run("Scale...", "x=- y=- width=100 height=" + PROFILE_THICKNESS + " interpolation=Bilinear average create title=Profile_C2_Norm");
+//run("Gaussian Blur...", "sigma=1");
 profileC2N = getTitle();
 run("Select All");
 run("Plot Profile");
@@ -60,6 +63,14 @@ print("inter-domain distance = " + dist + " % cell circumference");
 function convertOvalToSegmentedLineRoi() {
 	// oval broken at xMax, segmented line CW starting at yMax end
 	Roi.getCoordinates(xpoints, ypoints);
+	// correct large 1st-last gap at break by averaging these coords
+	iLast = xpoints.length - 1;
+	xEnds = (xpoints[0] + xpoints[iLast]) / 2;
+	yEnds = (ypoints[0] + ypoints[iLast]) / 2;
+	xpoints[0] = xEnds;
+	xpoints[iLast] = xEnds;
+	ypoints[0] = yEnds;
+	ypoints[iLast] = yEnds;
 	makeSelection("polyline", xpoints, ypoints);
 }
 
@@ -69,14 +80,13 @@ function channelProfile(c) {
 }
 
 function interDomainDistance(iC1, iC2) {
-	// Distance using half-max intensity to define domain boundaries
+	// Distance using intensity threshold to define domain boundaries
 	// - assumes C1 domain is at profile RHS, C2 at LHS
 	// - negative inter-domain distance for missing boundary / muddled channels
-	// - prints thresholds (FIXME, remove?)
-	Array.getStatistics(iC1, min1, max1, mean1, stdDev1);
-	Array.getStatistics(iC2, min2, max2, mean2, stdDev2);
-	threshC1 = min1 + (max1 - min1) / 2;
-	threshC2 = min2 + (max2 - min2) / 2;
+	iC1bg = Array.slice(iC1, 0, 50);
+	iC2bg = Array.slice(iC2, 50, 100);
+	threshC1 = domainThresh3stdDev(iC1, iC1bg);
+	threshC2 = domainThresh3stdDev(iC2, iC2bg);
 	print("threshC1 = " + threshC1 + ", threshC2 = " + threshC2);
 	// search right from middle for Channel 1 (green) domain boundary
 	boundaryC1 = -1;  // default indicates no boundary
@@ -99,4 +109,21 @@ function interDomainDistance(iC1, iC2) {
 		ix--;
 	}
 	return boundaryC1 - boundaryC2;
+}
+
+function domainThresh3stdDev(iAll, iBackground) {
+	// return intensity threshold identifying label domain
+	// using background + 3*stdDev of background region
+	Array.getStatistics(iAll, minAll, maxAll, meanAll, stdDevAll);
+	Array.getStatistics(iBackground, minBg, maxBg, meanBg, stdDevBg);
+	thresh = meanBg + 3 * stdDevBg;
+	return thresh;
+}
+
+function domainThreshSimple(iArr) {
+	// return intensity threshold identifying label domain
+	// using 1/2 max signal above background
+	Array.getStatistics(iArr, min, max, mean, stdDev);
+	thresh = min + 0.5 * (max - min); 
+	return thresh;
 }
