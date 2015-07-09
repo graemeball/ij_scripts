@@ -1,7 +1,6 @@
 // Spot_Noise_Demo.ijm: macro to reduce a hyperstack to one chosen Z per time
 // Usage: 
 //   user must specify a comma-separated list of Z slices (no spaces)
-//   N.B. only the *length* of the input is checked for validity
 // Author: graemeball@googlemail.com, Dundee Imaging Facility (2015)
 // License: Public Domain (CC0)
 // 
@@ -21,18 +20,7 @@ Dialog.addString("comma-separated Z slices", defaultZlist, nCols);
 Dialog.show();
 chosenZlist = Dialog.getString();
 
-// check we have one Z per t, then read as integers into an array
-if (lengthOf(chosenZlist) != 2*nt - 1) {
-	exit("Error, you did not enter one Z per time!");
-}
-zArray = newArray(nt);
-t = 1;
-while(lengthOf(chosenZlist) > 2) {
-	zArray[t - 1] = parseInt(substring(chosenZlist, 0, 1));
-	chosenZlist = substring(chosenZlist, 2);
-	t++;
-}
-zArray[t - 1] = parseInt(chosenZlist);
+zArray = parseIntegersIntoArray(chosenZlist);
 
 // create new hyperstack with one Z per t
 setBatchMode(true);
@@ -53,3 +41,21 @@ for (t = 1; t <= nt; t++) {
 run("Delete Slice");
 run("Stack to Hyperstack...", "order=xyczt(default) channels=" + nc + " slices=1 frames=" + nt + " display=Composite");
 setBatchMode(false);
+
+
+// -- helper functions --
+function parseIntegersIntoArray(csvString) {
+	// return array of integers parsed from a string of comma separated values
+	if (lengthOf(csvString) != 2*nt - 1) {
+		exit("Error, you did not enter one Z per time!");
+	}
+	zArray = newArray(nt);
+	t = 1;
+	while(lengthOf(csvString) > 2) {
+		zArray[t - 1] = parseInt(substring(csvString, 0, 1));
+		csvString = substring(csvString, 2);
+		t++;
+	}
+	zArray[t - 1] = parseInt(csvString);
+	return zArray;
+}
