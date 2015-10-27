@@ -1,49 +1,51 @@
-// Export_for_Stitching.ijm: arrange data for Grid/Collection Stitching plugin:
-//   split tiled image hyperstack (tile=frame) into 1 multi-channel 
-//   stack per tile & save resulting stacks as .tif files in a folder.
+// Write out tiled "t-series" as numbered stacked tiffs to a selected folder
+// -- intended as input for Fiji's Grid/Collection Stitching plugin.
+// Image numbering is 1-based, and the macro handles 1-999 tiles. 
 //
-// Author: Graeme Ball, Micron Oxford 2013
-// License: Public Domain (CC0)
-//
-// FIXME: this Macro likely still has bugs
+// Copyright: graemeball@gmail.com, Dundee Imaging Facility (2015)
+// License: Creative Commons CC-BY
 
 
-// assuming 1 empty folder exists for stitching input (& 1 for output)
-dir = getDirectory("Choose an empty folder to save .tifs for stitching input");
-
+folder = getDirectory("Choose a Folder to save tiffs for stitching");
 title = getTitle();
-getDimensions(width, height, channels, slices, frames);
-nTifs = slices * frames;
+basename = substring(title, 0, min(10, lengthOf(title)));
+getDimensions(nx, ny, nc, nz, nt);
 
-// split hyperstack into multi-channel tif stacks, one per tile
+if (nt > 999) {
+	exit(">999 tiles!? You're gonna need a bigger macro...");
+}
+
 setBatchMode(true);
-run("Stack Splitter", "number=" + nTifs);
-for (i = 0; i < nTifs; i++) {
-	substackName = "stk_" + sliceString(i + 1, 4) + "_" + title;
-	selectWindow(substackName);
-	run("Stack to Hyperstack...", "order=xyczt(default) channels=" + channels + " slices=1 frames=1");
-	saveAs("Tiff", dir + substackName + ".tif");
+for (t = 1; t <= nt; t++) {
+	run("Duplicate...", "duplicate frames=" + t);
+	path = folder + basename + "_" + threeDigit(t) + ".tif";
+	saveAs("tiff", path);
 	close();
 }
 setBatchMode(false);
 
 
-// Function Definitions
+// -- helper functions --
 
-// convert integer to string padded with zeros, total length nChar
-function sliceString(num, nChar) {
-	if (num > 9999) {
-		exit("sliceString(): Number " + num + " too large for " + nChar + " characters"); 
-	}
-	numString = toString(num);
-	if (num < 10) {
-		numString = "000" + numString;
-	} else if (num < 100) {
-		numString = "00" + numString;
-	} else if (num < 1000) {
-		numString = "0" + numString;
+function threeDigit(n) {
+	// for a number from 0-999, return a 3-digit string: 000, 001, ..., 011, ..., 999
+	// where n is greater than 999, return "XXX" (macro should abort for n>999)
+	if (n > 999) {
+		return "XXX";
+	} else if (n > 99) {
+		return "" + n;
+	} else if (n > 9) {
+		return "0" + n;
 	} else {
-		numString = numString;
+		return "00" + n;
 	}
-	return numString;
+}
+
+function min(a, b) {
+	// return minimum of 2 numbers, a and b
+	if (a < b) {
+		return a;
+	} else {
+		return b;
+	}
 }
