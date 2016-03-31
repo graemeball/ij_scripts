@@ -16,11 +16,23 @@ if (nt > 999) {
 }
 
 setBatchMode(true);
-for (t = 1; t <= nt; t++) {
-	run("Duplicate...", "duplicate frames=" + t);
-	path = folder + basename + "_" + threeDigit(t) + ".tif";
-	saveAs("tiff", path);
-	close();
+if (nz==1 && nc==1) {
+	// "Duplicate" just 1 slice for a simple stack
+	for (t = 1; t <= nt; t++) {
+		setSlice(t);
+		run("Duplicate...", " ");
+		path = folder + basename + "_" + threeDigit(t) + ".tif";
+		saveAs("tiff", path);
+		close();
+	}
+} else {
+	// where we have more than 1 Z or channel
+	for (t = 1; t <= nt; t++) {
+		run("Duplicate...", "duplicate frames=" + t);
+		path = folder + basename + "_" + threeDigit(t) + ".tif";
+		saveAs("tiff", path);
+		close();
+	}
 }
 setBatchMode(false);
 
