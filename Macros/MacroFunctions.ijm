@@ -1,3 +1,7 @@
+// Macro helper functions
+// Graeme Ball (graemeball@gmail.com)
+// Creative Commons CC-BY
+
 // for a sample and mask stack, return total sample intensity in masked region
 function totalMaskedIntensity(sample, mask) {
     maskedSampleTotal = 0.0;
