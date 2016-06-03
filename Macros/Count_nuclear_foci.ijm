@@ -57,7 +57,6 @@ function countNuclearFoci(imageID, path) {
 	close();
 	selectImage(projID);
 	Stack.setChannel(CHANNEL_FOCI);
-	focusCounts = newArray(nNuclei);
 	for (n=0; n<nNuclei; n++) {
 		roiManager("select", n);
 		nucleusName = "N" + n;
@@ -68,9 +67,14 @@ function countNuclearFoci(imageID, path) {
 		run("Add Selection...");
 		tolerance = std * TOL_STD;
 		run("Find Maxima...", "noise=" + tolerance + " output=[Point Selection]");
-		getSelectionCoordinates(xpts, ypts);
-		nFoci = xpts.length;
-		focusCounts[n] = nFoci;
+		nFoci = 0;
+		if (selectionType() == 10) {
+			// i.e. Find Maxima created a 10=point selectionType
+			getSelectionCoordinates(xpts, ypts);
+			nFoci = xpts.length;
+			run("Colors...", "foreground=white background=black selection=yellow");
+			run("Add Selection...");
+		} 
 		row = nResults;
 		setResult("Image", row, title);
 		setResult("Nucleus", row, nucleusName);
@@ -79,8 +83,6 @@ function countNuclearFoci(imageID, path) {
 		setResult("Area_um2", row, area);
 		setResult("Tolerance", row, tolerance);
 		setResult("nFoci", row, nFoci);
-		run("Colors...", "foreground=white background=black selection=yellow");
-		run("Add Selection...");
 	}
 	baseName = substring(title, 0, (lengthOf(title) - 4));	
 	saveAs("Tiff", path + File.separator + baseName + "_Foci.tif");
