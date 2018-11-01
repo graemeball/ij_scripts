@@ -316,7 +316,7 @@ function parseIntegersIntoArray(csvString, nt) {
 	return zArray;
 }
 
-function threshold_intensities(I, thresh) {
+function thresholdIntensities(I, thresh) {
 	// return trimmed array containing only above-threshold intensities in I
 	// checks whether pixel intensities >= thresh
 	I2 = newArray(I.length);
