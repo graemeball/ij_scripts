@@ -316,3 +316,34 @@ function parseIntegersIntoArray(csvString, nt) {
 	return zArray;
 }
 
+function threshold_intensities(I, thresh) {
+	// return trimmed array containing only above-threshold intensities in I
+	// checks whether pixel intensities >= thresh
+	I2 = newArray(I.length);
+	count = 0;
+	for (i = 0; i < I.length; i++) {
+		if (I[i] >= thresh) {
+			I2[count] = I[i];
+			count++;
+		}
+	}
+	return Array.trim(I2, count);
+}
+
+function printArray(A, valuesPerLine) {
+	// print array to log window with n values per line
+	nval = 0;
+	valueString = "";
+	for (i = 0; i < A.length; i++) {
+		if (nval == valuesPerLine) {
+			print(valueString + A[i]);
+			nval = 0;
+			valueString = "";
+		} else {
+			valueString = valueString + A[i] + ",";
+			nval++;
+		}
+	}
+	print(valueString);
+}
+
