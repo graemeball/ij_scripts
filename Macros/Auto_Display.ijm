@@ -15,7 +15,7 @@ macro "Auto Display [A]" {
 		}
 		Stack.setChannel(1);
 	} else {
-		Stack.setDisplayMode("grayscale");
+		run("Grays");
 		run("Enhance Contrast", "saturated=0.35");
 	}
 	// also show B&C and Channels tools
