@@ -1,32 +1,38 @@
-// Blind.ijm: for blind analysis of image data sets
+// Blind.ijm: ImageJ macro for blind analysis of image data sets
 // Usage: - specify input and output folders when prompted
 //        - obfuscated image files + key.txt appear in output folder
-// Author: graemeball@googlemail.com, Dundee Central Imaging Facility (2014)
-// License: Public Domain (CC0)
+// Requires: ImageJ 1.52o
+// Author: graemeball@googlemail.com, Dundee Central Imaging Facility (2020)
+// License: MIT license
 
 // get input & output folder paths
-inPath = getDirectory("Choose a folder of input files to copy");
+message = "Choose a folder of input files to copy";
+showMessage(message);  // since getDirectory does not show message on Mac!
+inPath = getDirectory(message);
 if (lengthOf(inPath) < 1){
 	exit("Macro cancelled.");
 }
-obfsPath = getDirectory("Choose an empty folder for output");
+message = "Choose an empty folder for output";
+showMessage(message);
+obfsPath = getDirectory(message);
 if (lengthOf(obfsPath) < 1){
 	exit("Macro cancelled.");
 }
 obfsFilesInitial = getFileList(obfsPath);
 nObfsFilesInitial = obfsFilesInitial.length;
 if (nObfsFilesInitial > 0) {
-	exit("Output folder not empty -- aborting.");
+	exit("Output folder not empty - aborting.");
 }
 
 // find input images, begin key.txt file
 inputFiles = getFileList(inPath);
+inputFiles = discardFolders(inputFiles, inPath);  // get rid of folders to avoid errors
 nFiles = inputFiles.length;
 obfsNames = newArray(nFiles);  // array to hold obfuscated image names
 fkey = File.open(obfsPath + File.separator + "key.txt");  // open text file & get handle
 print(fkey, "Created by Blind.ijm " + genTimeStamp());
 print(fkey, " (obfuscated image files from: " + inPath + ")\n---\n");
-print(fkey, "InputFilename,ObfscatedFilename\n");
+print(fkey, "InputFilename,ObfuscatedFilename\n");
 
 // loop through the open images, generate a random name and re-save 
 setBatchMode(true);  // set batch mode for speed (windows not updated)
@@ -94,4 +100,15 @@ function genTimeStamp(){
 	if (second < 10) {TimeString = TimeString + "0";}
 	TimeString = TimeString + second;
 	return TimeString;
+}
+
+function discardFolders(fileList, folder) {
+	// return a fileList where entries that are folders have been removed!
+	for (i = fileList.length - 1; i >=0 ; i--) {
+		filePath = folder + File.separator + fileList[i];
+		if (File.isDirectory(filePath)) {
+			fileList = Array.deleteIndex(fileList, i);
+		}
+	}
+	return fileList;
 }
