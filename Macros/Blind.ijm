@@ -26,7 +26,7 @@ if (nObfsFilesInitial > 0) {
 
 // find input images, begin key.txt file
 inputFiles = getFileList(inPath);
-inputFiles = discardFolders(inputFiles, inPath);  // get rid of folders to avoid errors
+inputFiles = expandFolders(inputFiles, inPath);  // handle folders in input folder
 nFiles = inputFiles.length;
 obfsNames = newArray(nFiles);  // array to hold obfuscated image names
 fkey = File.open(obfsPath + File.separator + "key.txt");  // open text file & get handle
@@ -102,12 +102,29 @@ function genTimeStamp(){
 	return TimeString;
 }
 
-function discardFolders(fileList, folder) {
-	// return a fileList where entries that are folders have been removed!
+function expandFolders(fileList, folder) {
+	// return a fileList where entries that are folders have been expanded
+	// - expand only 1 level, discarding any sub-sub-folders to prevent errors
 	for (i = fileList.length - 1; i >=0 ; i--) {
-		filePath = folder + File.separator + fileList[i];
-		if (File.isDirectory(filePath)) {
+		filePath1 = folder + File.separator + fileList[i];
+		if (File.isDirectory(filePath1)) {
+			subfolderName = fileList[i];
+			// first remove subfolder from fileList
 			fileList = Array.deleteIndex(fileList, i);
+			// expand contents of subfolder to add to fileList
+			moreFiles = getFileList(filePath1);
+			for (j = moreFiles.length - 1; j >=0 ; j--) {
+				filePath2 = filePath1 + File.separator + moreFiles[j];
+				if (File.isDirectory(filePath2)) {
+					// remove sub-sub-folders from "moreFiles" list
+					moreFiles = Array.deleteIndex(moreFiles, j);
+				} else {
+					// add subfolder to front of filename
+					moreFiles[j] = subfolderName + moreFiles[j];
+				}
+			}
+			// now concatenate filtered "moreFiles" from subfolder onto fileList
+			fileList = Array.concat(fileList, moreFiles);
 		}
 	}
 	return fileList;
