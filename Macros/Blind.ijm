@@ -111,6 +111,7 @@ function expandFolders(fileList, folder) {
 			subfolderName = fileList[i];
 			// first remove subfolder from fileList
 			fileList = Array.deleteIndex(fileList, i);
+			//fileList = arrayDeleteIndex(fileList, i);  // for IJ <1.52o
 			// expand contents of subfolder to add to fileList
 			moreFiles = getFileList(filePath1);
 			for (j = moreFiles.length - 1; j >=0 ; j--) {
@@ -118,6 +119,7 @@ function expandFolders(fileList, folder) {
 				if (File.isDirectory(filePath2)) {
 					// remove sub-sub-folders from "moreFiles" list
 					moreFiles = Array.deleteIndex(moreFiles, j);
+					//moreFiles = arrayDeleteIndex(moreFiles, j);  // for IJ <1.52o
 				} else {
 					// add subfolder to front of filename
 					moreFiles[j] = subfolderName + moreFiles[j];
@@ -128,4 +130,30 @@ function expandFolders(fileList, folder) {
 		}
 	}
 	return fileList;
+}
+
+function arrayDeleteIndex(array, index) {
+	// return a new array where element with specified index has been deleted
+	// to support ImageJ versions < 1.52o
+	inLength = array.length;
+	if (inLength < 1) {
+		print("arrayDeleteIndex() warning: empty input array");
+	}
+	if (index < inLength) {
+		if (index == 0) {
+			slice1 = newArray();
+		} else {
+			slice1 = Array.slice(array, 0, index);
+		}
+		if (index == inLength - 1) {
+			slice2 = newArray();
+		} else {
+			slice2 = Array.slice(array, index+1, inLength);
+		}
+		outputArray = Array.concat(slice1, slice2);
+	} else {
+		outputArray = array;
+		print("arrayDeleteIndex() warning: array ends before element " + index);
+	}
+	return outputArray;
 }
