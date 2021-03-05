@@ -107,7 +107,7 @@ function filterTiffs(files) {
 function timeStamp(){
 	// generate a time stamp string
 	getDateAndTime(year, month, dayOfWeek, dayOfMonth, hour, minute, second, msec);
-	timeString = toString(year) + "-" + twoDigit(month) + "-" + twoDigit(dayOfMonth);
+	timeString = toString(year) + "-" + twoDigit(month+1) + "-" + twoDigit(dayOfMonth);
 	DayNames = newArray("Sun", "Mon","Tue","Wed","Thu","Fri","Sat");
 	timeString = timeString + "_" + DayNames[dayOfWeek];
 	timeString = timeString + twoDigit(hour) + "-" + twoDigit(minute) + "-" + twoDigit(second);
