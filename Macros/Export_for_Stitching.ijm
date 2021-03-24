@@ -1,10 +1,10 @@
 // Write out tiled "t-series" as numbered stacked tiffs to a selected folder
-// -- intended as input for Fiji's Grid/Collection Stitching plugin.
-// Image numbering is 1-based, and the macro handles 1-999 tiles. 
+// - Intended as input for Fiji's Grid/Collection Stitching plugin
+// - Runs on active open image
+// - Image numbering is 1-based, and the macro handles 1-999 tiles
 //
-// Copyright: graemeball@gmail.com, Dundee Imaging Facility (2015)
-// License: Creative Commons CC-BY
-
+// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2015)
+// License: MIT license
 
 folder = getDirectory("Choose a Folder to save tiffs for stitching");
 title = getTitle();

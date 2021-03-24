@@ -1,8 +1,9 @@
 // Blind.ijm: ImageJ macro for blind analysis of image data sets
-// Usage: - specify input and output folders when prompted
-//        - obfuscated image files + key.txt appear in output folder
-// Requires: ImageJ 1.52o
-// Author: graemeball@googlemail.com, Dundee Central Imaging Facility (2020)
+// Usage: specify input and output folders when prompted
+// - looks into subfolders 1 level deep in input folder
+// - obfuscated image files + key.txt appear in output folder
+//        
+// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2020)
 // License: MIT license
 
 // get input & output folder paths

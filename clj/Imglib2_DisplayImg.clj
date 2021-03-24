@@ -1,6 +1,6 @@
 ; imglib2 scripting using clojure: opens and shows an image
-; Graeme Ball (2013)
-; Public Domain (CC0)
+; Author: Graeme Ball (2013)
+; License: Public Domain (CC0)
 
 (import ij.IJ)
 (import net.imglib2.img.Img)

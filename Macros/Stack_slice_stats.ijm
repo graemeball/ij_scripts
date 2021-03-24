@@ -1,7 +1,7 @@
 // ImageJ macro to show intensity stats for each slice in a stack
 //
-// Copyright g.ball@dundee.ac.uk (2018) Dundee Imaging Facility
-// License: Creative Commons CC-BY-SA
+// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2018)
+// License: MIT license
 //
 
 Stack.getDimensions(w, h, nc, nz, nt);

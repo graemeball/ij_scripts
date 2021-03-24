@@ -1,8 +1,8 @@
-// Spot_Noise_Demo.ijm: macro to reduce a hyperstack to one chosen Z per time
-// Usage: 
+// Select_One_Z_per_T.ijm: macro to reduce a hyperstack to one chosen Z per time
+// Usage: (runs on active image)
 //   user must specify a comma-separated list of Z slices (no spaces)
 // Author: graemeball@googlemail.com, Dundee Imaging Facility (2015)
-// License: Public Domain (CC0)
+// License: MIT license
 // 
 
 getDimensions(w,h,nc,nz,nt);

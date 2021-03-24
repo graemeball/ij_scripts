@@ -1,7 +1,7 @@
 // ImageJ Macro to auto-scale all channels and display composite if multi-channel
 //
-// Copyright g.ball@dundee.ac.uk (2019) Dundee Imaging Facility
-// License: Creative Commons CC-BY-SA
+// Author: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2019)
+// License: Public Domain (Creative Commons CC0)
 //
 
 macro "Auto Display [A]" {
@@ -22,5 +22,4 @@ macro "Auto Display [A]" {
 	run("Brightness/Contrast...");
 	run("Channels Tool...");
 }
-    
 

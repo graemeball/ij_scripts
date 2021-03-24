@@ -1,7 +1,7 @@
 // ImageJ Macro to list all series in multi-series file and open one
 //
-// Copyright g.ball@dundee.ac.uk (2019) Dundee Imaging Facility
-// License: Creative Commons CC-BY-SA
+// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2019)
+// License: GNU GPL
 //
 
 macro "Open Series [O]" {

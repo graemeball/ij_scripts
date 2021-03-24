@@ -1,7 +1,7 @@
-// This macro generates a trail movie of all images
-// in a stack and creates a new stack for the result.
-// Author: graemeball@googlemail.com
-// License: Public Domain (CC0)
+// This macro generates a trail movie (sliding window time-average)
+// - uses active image (a stack) and creates a new stack for result
+// Copyright: Graeme Ball (graemeball@googlemail.com)
+// License: MIT
 
 macro "Stack profile Plot" {
   activIm = getImageID();

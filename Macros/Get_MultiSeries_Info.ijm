@@ -1,7 +1,7 @@
 // ImageJ Macro to get series info from a multi-series image file
 //
-// Copyright g.ball@dundee.ac.uk (2018) Dundee Imaging Facility
-// License: Creative Commons CC-BY-SA
+// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2018)
+// License: GNU GPL
 //
 
 

@@ -16,7 +16,7 @@
 //   - .zip file with the 3 ROIs
 //
 // Copyright Graeme Ball (2014), graemeball@gmail.com
-// Creative Commons Attribution License (CC BY 3.0)
+// MIT License
 
 macro "FRAP Intensity Data [f]" {
 

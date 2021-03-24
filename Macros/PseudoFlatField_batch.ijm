@@ -1,13 +1,15 @@
-// Batch pseduo-flat-field correction ImageJ1 Macro (single-channel inputs!)
+// Batch pseduo-flat-field correction ImageJ1 Macro
+// - uses gaussian blur of 1/4 image height as pseudo-flat-field
+// - assumes a single channel!
 //
 // Usage: you will be prompted for,
 //   - an input folder of images to correct
 //   - an output folder for the corrected images
 //
-// Author: graemeball@googlemail.com, Dundee Imaging Facility (2015)
-// License: Public Domain (CC0)
+// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2015)
+// License: MIT
 
-// collect necessary parameters
+// prompt for input and output folders
 dInput = getDirectory("Choose a folder containing images to flat-field correct");
 dOutput = getDirectory("Choose a folder to save flat-field corrected images");
 
@@ -18,7 +20,7 @@ run("Conversions...", " ");
 // build input file list
 inputs = getFileList(dInput);
 
-// loop over input images using Image Calculator to flat-field correct; save in dOutput
+// loop over input images, flat-field correct, save in dOutput
 for (i = 0; i < inputs.length; i++) {
 	input = inputs[i];
 	open(dInput + input);

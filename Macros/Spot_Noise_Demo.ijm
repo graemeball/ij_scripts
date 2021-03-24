@@ -1,6 +1,6 @@
 // Spot_Noise_Demo.ijm: macro to demo sub-res spot at descending SNR
 // Usage: just run it
-// Author: graemeball@googlemail.com, Dundee Imaging Facility (2015)
+// Author: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2015)
 // License: Public Domain (CC0)
 // 
 

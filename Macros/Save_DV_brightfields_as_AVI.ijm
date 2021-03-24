@@ -1,8 +1,8 @@
 // Macro to enhance brightfield .dv movies and save as uncompressed .avi
 // Corrects illumination flicker and enhances display contrast
 //
-// Graeme Ball (g.ball@dundee.ac.uk), 2017
-// Creative Commons CC-BY
+// Copyright: Graeme Ball (g.ball@dundee.ac.uk), 2017
+// License: GNU GPL
 //
 
 dir = getDirectory("Choose folder containing .dv movies");

@@ -1,8 +1,8 @@
 // Macro to merge pairs of .dv images, a multi-channel PRJ and a REF image
 // Saves a single ImageJ _merge.tif file for each merged pair
 //
-// Graeme Ball (g.ball@dundee.ac.uk), 2017
-// Creative Commons CC-BY
+// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2017)
+// License: GNU GPL
 //
 
 dir = getDirectory("Choose folder containing pairs of PRJ and REF images");

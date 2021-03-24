@@ -1,5 +1,5 @@
 // View_OTF.js: unscramble API OMX OTF files for viewing
-// Author: Graeme Ball, Micron Oxford, November 2013
+// Copyright: Graeme Ball, Micron Oxford, November 2013
 // License: GPL V3 license
 //
 // NB. bioformats treats 64bit complex as 32bit float

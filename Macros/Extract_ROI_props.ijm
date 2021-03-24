@@ -1,7 +1,8 @@
 // Extract_ROI_props.ijm
 // - from each ROI's name property, extract value after final comma
-//
-// graemeball@gmail.com, Creative Commons CC0
+// - create Results table with ROI x,y,t position, size and roiValue
+// Author: Graeme Ball (graemeball@gmail.com)
+// License: Public Domain (CC0)
 
 run("Clear Results");
 roiManager("reset");

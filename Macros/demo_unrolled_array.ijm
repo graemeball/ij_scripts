@@ -4,7 +4,9 @@
 // Demonstrates using an unrolled/flat array instead of array of arrays
 // "version 2"!
 //
-// graemeball@gmail.com, Creative Commons CC0
+// Author: Graeme Ball (graemeball@gmail.com) 2016
+// License: Public Domain (CC0)
+//
 
 
 nChannels = 3;  // this could be any number of channels

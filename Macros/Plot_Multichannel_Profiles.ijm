@@ -1,7 +1,7 @@
 // ImageJ Macro to plot line profiles for all channels using current line/rectangle selection
 //
-// Copyright g.ball@dundee.ac.uk (2019) Dundee Imaging Facility
-// License: Creative Commons CC-BY-SA
+// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2019)
+// License: MIT license
 //
 
 macro "Plot Multichannel Profiles [K]" {
