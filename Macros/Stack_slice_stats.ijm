@@ -1,6 +1,7 @@
 // ImageJ macro to show intensity stats for each slice in a stack
+//  and finally, print stack intensity stats to log window
 //
-// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2018)
+// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2018-21)
 // License: MIT license
 //
 
@@ -25,3 +26,13 @@ for (c = 1; c <= nc; c++) {
 		}
 	}
 }
+print("# Stack_slice_stats.ijm - stack intensity stats...");
+for (c = 1; c <= nc; c++) {
+	Stack.getStatistics(voxelCount, mean, min, max, stdDev);
+	stackStats = ": Mean=" + mean;
+	stackStats = stackStats + ", Min=" + min;
+	stackStats = stackStats + ", Max=" + max;
+	stackStats = stackStats + ", Std=" + stdDev;
+	print("Channel" + c + stackStats);
+}
+
