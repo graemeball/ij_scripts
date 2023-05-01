@@ -1,6 +1,6 @@
 // ImageJ Macro to plot line profiles for all channels using current line/rectangle selection
 //
-// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2019)
+// Copyright: Graeme Ball (g.ball@dundee.ac.uk), Dundee Imaging Facility (2019-2023)
 // License: MIT license
 //
 
@@ -10,8 +10,15 @@ macro "Plot Multichannel Profiles [K]" {
 	inpID = getImageID();
 	st = selectionType();
 	if (st == 0 || st == 5 || st == 6 || st == 7) {
-		getDimensions(w, h, nc, nz, nt);
 		setBatchMode("hide");
+		if (bitDepth() == 24) {
+			// RGB - convert to hyperstack for multi-channel profile
+			run("Duplicate...", " ");
+			run("RGB Stack");
+			run("Stack to Hyperstack...", "order=xyczt(default) channels=3 slices=1 frames=1 display=Composite");
+			run("Restore Selection");
+		}
+		getDimensions(w, h, nc, nz, nt);
 		if (nc > 1) {
 			Stack.setDisplayMode("composite");  // for color LUTs
 			colors = newArray();  // array for hex color strings
@@ -27,7 +34,8 @@ macro "Plot Multichannel Profiles [K]" {
 				close();
 			}
 			nPoints = xvals.length;
-			Plot.create("Multichannel Line Profile", "Distance (pixels)", "Gray Value");
+			Stack.getUnits(xu, yu, zu, tu, vu);
+			Plot.create("Multichannel Line Profile", "Distance (" + xu + ")", "Gray Value");
 			for (c = 1; c <= nc; c++) {
 				Plot.setColor(colors[c-1]);
 				offset = (c-1) * nPoints;
