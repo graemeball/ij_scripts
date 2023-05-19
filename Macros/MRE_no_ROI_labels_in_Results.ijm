@@ -18,6 +18,11 @@ showMessage("Here we see 'blobs.gif' image name in 'Label' column :-(");
 
 showMessage("Instead I was expecting / hoping to see ROI label in 'Label' column like this...");
 updateLabelValuesWithROInames();
+updateResults();
+
+showMessage("Also note that Analyze>Measure shows ImageName:RoiName which is better than 'Analyze Particles'");
+roiManager("select", 42);
+run("Measure");
 
 
 // --- function definitions ---
