@@ -436,3 +436,36 @@ macro "Script [S]" {
     run("Script...");
 }
 
+macro "Marshal Tool Windows [M]" {
+    // arrange Channels, B&C and ROI Manager windows around active image
+    marshalScript = 
+    "imageTitle = IJ.getImage().getTitle();\n"+
+    "iw = WindowManager.getWindow(imageTitle);\n"+
+    "if (iw!=null) {\n"+
+    	// make sure Channels, B&C and ROI Manager are open
+    	"  if (WindowManager.getWindow('Brightness/Contrast...')==null) {\n"+
+    		"  IJ.run('Brightness/Contrast...');}\n"+
+    	"  if (WindowManager.getWindow('Channels Tool...')==null) {\n"+
+    		"  IJ.run('Channels Tool...');}\n"+
+    	"  if (WindowManager.getWindow('ROI Manager...')==null) {\n"+
+    		"  IJ.run('ROI Manager...');}\n"+
+    	// get sizes and initial locations
+	    "  iloc = iw.getLocationOnScreen();\n"+
+    	"  idim = iw.getSize();\n"+
+    	"  bcw = WindowManager.getWindow('B&C');\n"+
+    	"  bcWidth =  bcw.getSize().width;\n"+
+    	"  bcHeight =  bcw.getSize().height;\n"+
+    	"  ctw = WindowManager.getWindow('Channels');\n"+
+    	"  ctWidth =  ctw.getSize().width;\n"+
+    	"  rmw = WindowManager.getWindow('ROI Manager');\n"+
+    	// TODO: move image window if too high / left
+    	// set tool positions relative to image window
+    	"  bcw.setLocation(iloc.x-bcWidth, iloc.y);\n"+
+    	"  ctw.setLocation(iloc.x-ctWidth, iloc.y+bcHeight);\n"+
+    	"  rmw.setLocation(iloc.x+idim.width, iloc.y);\n"+
+    	// bring image window back to front
+    	"  iw.toFront();\n"+
+    "}\n";
+    eval("script", marshalScript);
+}
+
